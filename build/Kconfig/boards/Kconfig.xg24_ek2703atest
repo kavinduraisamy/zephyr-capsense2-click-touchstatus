@@ -1,0 +1,2 @@
+# Load board Kconfig descriptions.
+osource "/home/kavin/zephyrproject/zephyr/boards/silabs/radio_boards/xg24_ek2703atest/Kconfig.xg24_ek2703atest"

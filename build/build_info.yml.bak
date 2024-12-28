@@ -1,0 +1,5 @@
+west:
+  command: /home/kavin/zephyrproject/.venv/bin/west build -b xg24_ek2703atest -p --
+    -DDTC_OVERLAY_FILE=capsense2.overlay
+  topdir: /home/kavin/zephyrproject
+  version: 1.3.0

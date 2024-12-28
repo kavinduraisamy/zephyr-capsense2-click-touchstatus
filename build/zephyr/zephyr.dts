@@ -1,0 +1,543 @@
+/dts-v1/;
+
+/ {
+	#address-cells = < 0x1 >;
+	#size-cells = < 0x1 >;
+	model = "Silicon Labs BRD4187C (Mighty Gecko 24 Radio Board)";
+	compatible = "silabs,xg24_rb4187c", "silabs,efr32mg24";
+	chosen {
+		zephyr,flash-controller = &msc;
+		zephyr,entropy = &se;
+		zephyr,console = &usart0;
+		zephyr,shell-uart = &usart0;
+		zephyr,uart-pipe = &usart0;
+		zephyr,sram = &sram0;
+		zephyr,flash = &flash0;
+		zephyr,code-partition = &slot0_partition;
+		zephyr,bt-hci = &bt_hci_silabs;
+		zephyr,bt-c2h-uart = &usart0;
+	};
+	aliases {
+		led0 = &led0;
+		led1 = &led1;
+		sw0 = &button0;
+		sw1 = &button1;
+		watchdog0 = &wdog0;
+	};
+	soc {
+		#address-cells = < 0x1 >;
+		#size-cells = < 0x1 >;
+		compatible = "silabs,efr32mg24b220f1536im48", "silabs,efr32mg24", "silabs,efr32", "simple-bus";
+		interrupt-parent = < &nvic >;
+		ranges;
+		nvic: interrupt-controller@e000e100 {
+			#address-cells = < 0x1 >;
+			compatible = "arm,v8m-nvic";
+			reg = < 0xe000e100 0xc00 >;
+			interrupt-controller;
+			#interrupt-cells = < 0x2 >;
+			arm,num-irq-priority-bits = < 0x4 >;
+			phandle = < 0x1 >;
+		};
+		systick: timer@e000e010 {
+			compatible = "arm,armv8m-systick";
+			reg = < 0xe000e010 0x10 >;
+		};
+		cmu: clock@50008000 {
+			compatible = "silabs,series-clock";
+			reg = < 0x50008000 0x4000 >;
+			interrupts = < 0x2f 0x0 >;
+			interrupt-names = "cmu";
+			status = "okay";
+			#clock-cells = < 0x2 >;
+			phandle = < 0x3 >;
+		};
+		fsrco: fsrco@50018000 {
+			#clock-cells = < 0x0 >;
+			compatible = "fixed-clock";
+			reg = < 0x50018000 0x4000 >;
+			clock-frequency = < 0x1312d00 >;
+		};
+		clk_hfxo: hfxo: hfxo@5a004000 {
+			#clock-cells = < 0x0 >;
+			compatible = "silabs,hfxo";
+			reg = < 0x5a004000 0x4000 >;
+			interrupts = < 0x2c 0x0 >;
+			interrupt-names = "hfxo";
+			clock-frequency = < 0x25317c0 >;
+			ctune = < 0x5f >;
+			precision = < 0x32 >;
+			status = "okay";
+			phandle = < 0x2 >;
+		};
+		lfxo: lfxo@50020000 {
+			#clock-cells = < 0x0 >;
+			compatible = "silabs,series2-lfxo";
+			reg = < 0x50020000 0x4000 >;
+			clock-frequency = < 0x8000 >;
+			ctune = < 0x2c >;
+			precision = < 0x32 >;
+			timeout = < 0x1000 >;
+			status = "okay";
+			phandle = < 0xd >;
+		};
+		hfrcodpll: hfrcodpll@50010000 {
+			#clock-cells = < 0x0 >;
+			compatible = "silabs,series2-hfrcodpll";
+			reg = < 0x50010000 0x4000 >;
+			clock-frequency = < 0x4a62f80 >;
+			clocks = < &hfxo >;
+			dpll-n = < 0xeff >;
+			dpll-m = < 0x77f >;
+			dpll-edge = "fall";
+			dpll-lock = "phase";
+			dpll-autorecover;
+			phandle = < 0x8 >;
+		};
+		hfrcoem23: hfrcoem23@5a000000 {
+			#clock-cells = < 0x0 >;
+			compatible = "silabs,series2-hfrcoem23";
+			reg = < 0x5a000000 0x4000 >;
+			clock-frequency = < 0x121eac0 >;
+		};
+		lfrco: lfrco@50024000 {
+			#clock-cells = < 0x0 >;
+			compatible = "silabs,series2-lfrco";
+			reg = < 0x50024000 0x4000 >;
+			clock-frequency = < 0x8000 >;
+		};
+		ulfrco: ulfrco@50028000 {
+			#clock-cells = < 0x0 >;
+			compatible = "fixed-clock";
+			reg = < 0x50028000 0x4000 >;
+			clock-frequency = < 0x3e8 >;
+		};
+		clkin0: clkin0@5003c46c {
+			#clock-cells = < 0x0 >;
+			compatible = "fixed-clock";
+			reg = < 0x5003c46c 0x4 >;
+			clock-frequency = < 0x243d580 >;
+		};
+		msc: flash-controller@50030000 {
+			compatible = "silabs,gecko-flash-controller";
+			reg = < 0x50030000 0x3148 >;
+			interrupts = < 0x32 0x0 >;
+			#address-cells = < 0x1 >;
+			#size-cells = < 0x1 >;
+			flash0: flash@8000000 {
+				compatible = "soc-nv-flash";
+				write-block-size = < 0x4 >;
+				erase-block-size = < 0x2000 >;
+				reg = < 0x8000000 0x180000 >;
+				partitions {
+					compatible = "fixed-partitions";
+					#address-cells = < 0x1 >;
+					#size-cells = < 0x1 >;
+					boot_partition: partition@0 {
+						label = "mcuboot";
+						reg = < 0x0 0xc000 >;
+						read-only;
+					};
+					slot0_partition: partition@c000 {
+						label = "image-0";
+						reg = < 0xc000 0xb4000 >;
+					};
+					slot1_partition: partition@C0000 {
+						label = "image-1";
+						reg = < 0xc0000 0xb4000 >;
+					};
+					scratch_partition: partition@174000 {
+						label = "image-scratch";
+						reg = < 0x174000 0x8000 >;
+					};
+					storage_partition: partition@17c000 {
+						label = "storage";
+						reg = < 0x17c000 0x4000 >;
+					};
+				};
+			};
+		};
+		usart0: usart@5005c000 {
+			compatible = "silabs,gecko-usart";
+			reg = < 0x5005c000 0x306c >;
+			interrupts = < 0x9 0x0 >, < 0xa 0x0 >;
+			interrupt-names = "rx", "tx";
+			peripheral-id = < 0x0 >;
+			clocks = < &cmu 0x9 0x3 >;
+			status = "okay";
+			current-speed = < 0x1c200 >;
+			pinctrl-0 = < &usart0_default >;
+			pinctrl-names = "default";
+		};
+		eusart0: eusart@5b010000 {
+			compatible = "silabs,gecko-spi-eusart";
+			reg = < 0x5b010000 0x4000 >;
+			interrupts = < 0xb 0x0 >, < 0xc 0x0 >;
+			interrupt-names = "rx", "tx";
+			clocks = < &cmu 0x56 0x15 >;
+			status = "disabled";
+		};
+		eusart1: eusart@500a0000 {
+			compatible = "silabs,gecko-spi-eusart";
+			reg = < 0x500a0000 0x4000 >;
+			interrupts = < 0xd 0x0 >, < 0xe 0x0 >;
+			interrupt-names = "rx", "tx";
+			clocks = < &cmu 0x57 0xa >;
+			status = "disabled";
+		};
+		burtc0: burtc@50064000 {
+			compatible = "silabs,gecko-burtc";
+			reg = < 0x50064000 0x3034 >;
+			interrupts = < 0x11 0x0 >;
+			clocks = < &cmu 0x1d 0xd >;
+			status = "disabled";
+		};
+		se: semailbox@5c021000 {
+			compatible = "silabs,gecko-semailbox";
+			reg = < 0x5c021000 0x1000 >;
+			status = "okay";
+			interrupts = < 0x40 0x3 >, < 0x41 0x3 >, < 0x42 0x3 >;
+			interrupt-names = "SETAMPERHOST", "SEMBRX", "SEMBTX";
+		};
+		i2c0: i2c@5b000000 {
+			compatible = "silabs,gecko-i2c";
+			clock-frequency = < 0x186a0 >;
+			#address-cells = < 0x1 >;
+			#size-cells = < 0x0 >;
+			reg = < 0x5b000000 0x3044 >;
+			interrupts = < 0x1b 0x0 >;
+			clocks = < &cmu 0xe 0x4 >;
+			status = "okay";
+			pinctrl-0 = < &i2c0_default >;
+			pinctrl-names = "default";
+			capsense2: cap1114@28 {
+				compatible = "capsense2,cap1114";
+				reg = < 0x28 >;
+				status = "okay";
+				int-gpios = < &gpiob 0x1 0x11 >;
+				rst-gpios = < &gpioc 0x8 0x10 >;
+			};
+		};
+		sysrtc0: stimer0: sysrtc@500a8000 {
+			compatible = "silabs,gecko-stimer";
+			reg = < 0x500a8000 0x3054 >;
+			interrupts = < 0x43 0x0 >, < 0x44 0x0 >;
+			interrupt-names = "sysrtc_app", "sysrtc_seq";
+			clock-frequency = < 0x8000 >;
+			prescaler = < 0x1 >;
+			clocks = < &cmu 0x1e 0x13 >;
+			status = "okay";
+		};
+		gpio: gpio@5003c000 {
+			compatible = "silabs,gecko-gpio";
+			reg = < 0x5003c000 0x440 >;
+			interrupts = < 0x1a 0x2 >, < 0x19 0x2 >;
+			interrupt-names = "GPIO_EVEN", "GPIO_ODD";
+			clocks = < &cmu 0x1a 0x3 >;
+			ranges;
+			#address-cells = < 0x1 >;
+			#size-cells = < 0x1 >;
+			location-swo = < 0x0 >;
+			status = "okay";
+			gpioa: gpio@5003c030 {
+				compatible = "silabs,gecko-gpio-port";
+				reg = < 0x5003c030 0x30 >;
+				peripheral-id = < 0x0 >;
+				gpio-controller;
+				#gpio-cells = < 0x2 >;
+				status = "okay";
+				phandle = < 0x13 >;
+			};
+			gpiob: gpio@5003c060 {
+				compatible = "silabs,gecko-gpio-port";
+				reg = < 0x5003c060 0x30 >;
+				peripheral-id = < 0x1 >;
+				gpio-controller;
+				#gpio-cells = < 0x2 >;
+				status = "okay";
+				phandle = < 0x6 >;
+				board-controller-enable {
+					gpio-hog;
+					gpios = < 0x0 0x0 >;
+					output-high;
+				};
+			};
+			gpioc: gpio@5003c090 {
+				compatible = "silabs,gecko-gpio-port";
+				reg = < 0x5003c090 0x30 >;
+				peripheral-id = < 0x2 >;
+				gpio-controller;
+				#gpio-cells = < 0x2 >;
+				status = "okay";
+				phandle = < 0x7 >;
+			};
+			gpiod: gpio@5003c0C0 {
+				compatible = "silabs,gecko-gpio-port";
+				reg = < 0x5003c0c0 0x30 >;
+				peripheral-id = < 0x3 >;
+				gpio-controller;
+				#gpio-cells = < 0x2 >;
+				status = "okay";
+			};
+		};
+		pinctrl: pin-controller@5003c440 {
+			compatible = "silabs,dbus-pinctrl";
+			reg = < 0x5003c440 0xbc0 >;
+			usart0_default: usart0_default {
+				phandle = < 0x4 >;
+				group0 {
+					pins = < 0x624b850 >;
+					drive-push-pull;
+					output-high;
+				};
+				group1 {
+					pins = < 0x414b860 >;
+					input-enable;
+					silabs,input-filter;
+				};
+			};
+			i2c0_default: i2c0_default {
+				phandle = < 0x5 >;
+				group0 {
+					pins = < 0x1042a41 >, < 0x20c2a51 >;
+					drive-open-drain;
+					bias-pull-up;
+				};
+			};
+			i2c0_scl_pin: i2c0_scl_pin {
+				pinmux = < &gpiob 0x4 0x0 >;
+				bias-pull-up;
+			};
+			i2c0_sda_pin: i2c0_sda_pin {
+				pinmux = < &gpiob 0x5 0x0 >;
+				bias-pull-up;
+			};
+		};
+		dma0: dma@40040000 {
+			compatible = "silabs,ldma";
+			reg = < 0x40040000 0x4000 >;
+			interrupts = < 0x15 0x0 >;
+			#dma-cells = < 0x3 >;
+			dma_channels = < 0x8 >;
+			status = "disabled";
+		};
+		wdog0: wdog@5b004000 {
+			compatible = "silabs,gecko-wdog";
+			reg = < 0x5b004000 0x2c >;
+			peripheral-id = < 0x0 >;
+			interrupts = < 0x2a 0x0 >;
+			clocks = < &cmu 0xd 0x10 >;
+			status = "okay";
+		};
+		wdog1: wdog@5b008000 {
+			compatible = "silabs,gecko-wdog";
+			reg = < 0x5b008000 0x2c >;
+			peripheral-id = < 0x1 >;
+			interrupts = < 0x2b 0x0 >;
+			clocks = < &cmu 0x51 0x11 >;
+			status = "disabled";
+		};
+		adc0: adc@59004000 {
+			compatible = "silabs,gecko-iadc";
+			reg = < 0x59004000 0x4000 >;
+			interrupts = < 0x31 0x0 >;
+			clocks = < &cmu 0xa 0xf >;
+			status = "disabled";
+			#io-channel-cells = < 0x1 >;
+		};
+		dcdc: dcdc@50094000 {
+			compatible = "silabs,series2-dcdc";
+			reg = < 0x50094000 0x4000 >;
+			interrupts = < 0x35 0x0 >;
+			status = "okay";
+			regulator-boot-on;
+			regulator-initial-mode = < 0x0 >;
+			silabs,pfmx-peak-current-milliamp = < 0x64 >;
+		};
+	};
+	clocks {
+		hfxort: hfxort {
+			#clock-cells = < 0x0 >;
+			compatible = "fixed-factor-clock";
+			clocks = < &hfxo >;
+		};
+		hfrcodpllrt: hfrcodpllrt {
+			#clock-cells = < 0x0 >;
+			compatible = "fixed-factor-clock";
+			clocks = < &hfrcodpll >;
+		};
+		sysclk: sysclk {
+			#clock-cells = < 0x0 >;
+			compatible = "fixed-factor-clock";
+			clocks = < &hfrcodpll >;
+			phandle = < 0x9 >;
+		};
+		hclk: hclk {
+			#clock-cells = < 0x0 >;
+			compatible = "fixed-factor-clock";
+			clocks = < &sysclk >;
+			clock-div = < 0x1 >;
+			phandle = < 0xa >;
+		};
+		pclk: pclk {
+			#clock-cells = < 0x0 >;
+			compatible = "fixed-factor-clock";
+			clocks = < &hclk >;
+			clock-div = < 0x2 >;
+			phandle = < 0xb >;
+		};
+		lspclk: lspclk {
+			#clock-cells = < 0x0 >;
+			compatible = "fixed-factor-clock";
+			clocks = < &pclk >;
+			clock-div = < 0x2 >;
+		};
+		hclkdiv1024: hclkdiv1024 {
+			#clock-cells = < 0x0 >;
+			compatible = "fixed-factor-clock";
+			clocks = < &hclk >;
+			clock-div = < 0x400 >;
+		};
+		traceclk: traceclk {
+			#clock-cells = < 0x0 >;
+			compatible = "fixed-factor-clock";
+			clocks = < &sysclk >;
+			clock-div = < 0x1 >;
+		};
+		em01grpaclk: em01grpaclk {
+			#clock-cells = < 0x0 >;
+			compatible = "fixed-factor-clock";
+			clocks = < &hfrcodpll >;
+			phandle = < 0xc >;
+		};
+		em01grpcclk: em01grpcclk {
+			#clock-cells = < 0x0 >;
+			compatible = "fixed-factor-clock";
+			clocks = < &hfrcodpll >;
+			phandle = < 0xf >;
+		};
+		iadcclk: iadcclk {
+			#clock-cells = < 0x0 >;
+			compatible = "fixed-factor-clock";
+			clocks = < &em01grpaclk >;
+		};
+		em23grpaclk: em23grpaclk {
+			#clock-cells = < 0x0 >;
+			compatible = "fixed-factor-clock";
+			clocks = < &lfxo >;
+			phandle = < 0xe >;
+		};
+		em4grpaclk: em4grpaclk {
+			#clock-cells = < 0x0 >;
+			compatible = "fixed-factor-clock";
+			clocks = < &lfxo >;
+		};
+		sysrtcclk: sysrtcclk {
+			#clock-cells = < 0x0 >;
+			compatible = "fixed-factor-clock";
+			clocks = < &lfxo >;
+		};
+		wdog0clk: wdog0clk {
+			#clock-cells = < 0x0 >;
+			compatible = "fixed-factor-clock";
+			clocks = < &lfxo >;
+		};
+		wdog1clk: wdog1clk {
+			#clock-cells = < 0x0 >;
+			compatible = "fixed-factor-clock";
+			clocks = < &lfxo >;
+		};
+		pcnt0clk: pcnt0clk {
+			#clock-cells = < 0x0 >;
+			compatible = "fixed-factor-clock";
+			clocks = < &em23grpaclk >;
+		};
+		eusart0clk: eusart0clk {
+			#clock-cells = < 0x0 >;
+			compatible = "fixed-factor-clock";
+			clocks = < &em01grpcclk >;
+		};
+		systickclk: systickclk {
+			#clock-cells = < 0x0 >;
+			compatible = "fixed-factor-clock";
+			clocks = < &hclk >;
+		};
+		vdac0clk: vdac0clk {
+			#clock-cells = < 0x0 >;
+			compatible = "fixed-factor-clock";
+			clocks = < &em01grpaclk >;
+		};
+	};
+	cpus {
+		#address-cells = < 0x1 >;
+		#size-cells = < 0x0 >;
+		cpu0: cpu@0 {
+			device_type = "cpu";
+			compatible = "arm,cortex-m33";
+			reg = < 0x0 >;
+			cpu-power-states = < &pstate_em1 &pstate_em2 &pstate_em3 >;
+			clock-frequency = < 0x4a62f80 >;
+		};
+		power-states {
+			pstate_em1: em1 {
+				compatible = "zephyr,power-state";
+				power-state-name = "runtime-idle";
+				min-residency-us = < 0x4 >;
+				exit-latency-us = < 0x2 >;
+				phandle = < 0x10 >;
+			};
+			pstate_em2: em2 {
+				compatible = "zephyr,power-state";
+				power-state-name = "suspend-to-idle";
+				min-residency-us = < 0x104 >;
+				exit-latency-us = < 0xfa >;
+				phandle = < 0x11 >;
+			};
+			pstate_em3: em3 {
+				compatible = "zephyr,power-state";
+				power-state-name = "standby";
+				min-residency-us = < 0x4e20 >;
+				exit-latency-us = < 0x7d0 >;
+				status = "disabled";
+				phandle = < 0x12 >;
+			};
+		};
+	};
+	sram0: memory@20000000 {
+		device_type = "memory";
+		compatible = "mmio-sram";
+		reg = < 0x20000000 0x40000 >;
+	};
+	bt_hci_silabs: bt_hci_silabs {
+		compatible = "silabs,bt-hci-efr32";
+		status = "okay";
+	};
+	hwinfo: hwinfo {
+		compatible = "silabs,gecko-hwinfo";
+		status = "disabled";
+	};
+	leds {
+		compatible = "gpio-leds";
+		led0: led_0 {
+			gpios = < &gpioa 0x4 0x0 >;
+			label = "LED 0";
+		};
+		led1: led_1 {
+			gpios = < &gpioa 0x7 0x0 >;
+			label = "LED 1";
+		};
+	};
+	buttons {
+		compatible = "gpio-keys";
+		button0: button_0 {
+			gpios = < &gpiob 0x2 0x1 >;
+			label = "User Push Button 0";
+			zephyr,code = < 0xb >;
+		};
+		button1: button_1 {
+			gpios = < &gpiob 0x3 0x1 >;
+			label = "User Push Button 1";
+			zephyr,code = < 0x2 >;
+		};
+	};
+};

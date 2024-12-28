@@ -1,0 +1,53 @@
+cmake:
+  application:
+    configuration-dir: /home/kavin/zephyrproject/zephyr/samples/capsense2
+    source-dir: /home/kavin/zephyrproject/zephyr/samples/capsense2
+  board:
+    name: xg24_ek2703atest
+    qualifiers: efr32mg24b220f1536im48
+    revision: 
+  devicetree:
+    bindings-dirs:
+     - /home/kavin/zephyrproject/zephyr/dts/bindings
+    files:
+     - /home/kavin/zephyrproject/zephyr/boards/silabs/radio_boards/xg24_ek2703atest/xg24_ek2703atest.dts
+     - capsense2.overlay
+    include-dirs:
+     - /home/kavin/zephyrproject/modules/hal/atmel/include
+     - /home/kavin/zephyrproject/modules/hal/gigadevice/include
+     - /home/kavin/zephyrproject/modules/hal/microchip/dts
+     - /home/kavin/zephyrproject/modules/hal/nuvoton/dts
+     - /home/kavin/zephyrproject/modules/hal/nxp/dts
+     - /home/kavin/zephyrproject/modules/hal/stm32/dts
+     - /home/kavin/zephyrproject/zephyr/include
+     - /home/kavin/zephyrproject/zephyr/include/zephyr
+     - /home/kavin/zephyrproject/zephyr/dts/common
+     - /home/kavin/zephyrproject/zephyr/dts/x86
+     - /home/kavin/zephyrproject/zephyr/dts/xtensa
+     - /home/kavin/zephyrproject/zephyr/dts/sparc
+     - /home/kavin/zephyrproject/zephyr/dts/riscv
+     - /home/kavin/zephyrproject/zephyr/dts/posix
+     - /home/kavin/zephyrproject/zephyr/dts/nios2
+     - /home/kavin/zephyrproject/zephyr/dts/arm64
+     - /home/kavin/zephyrproject/zephyr/dts/arm
+     - /home/kavin/zephyrproject/zephyr/dts/arc
+     - /home/kavin/zephyrproject/zephyr/dts
+    user-files:
+     - capsense2.overlay
+  kconfig:
+    files:
+     - /home/kavin/zephyrproject/zephyr/boards/silabs/radio_boards/xg24_ek2703atest/xg24_ek2703atest_defconfig
+     - /home/kavin/zephyrproject/zephyr/samples/capsense2/prj.conf
+    user-files:
+     - /home/kavin/zephyrproject/zephyr/samples/capsense2/prj.conf
+  toolchain:
+    name: zephyr
+    path: /home/kavin/zephyr-sdk-0.17.0
+  zephyr:
+    version: 4.0.99
+    zephyr-base: /home/kavin/zephyrproject/zephyr
+version: 0.1.0
+west:
+  command: /home/kavin/zephyrproject/.venv/bin/west build -b xg24_ek2703atest -p -- -DDTC_OVERLAY_FILE=capsense2.overlay
+  topdir: /home/kavin/zephyrproject
+  version: 1.3.0
